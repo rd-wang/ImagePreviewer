@@ -13,7 +13,7 @@ import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 
-import com.previewlibrary.R;
+import com.rd.imagepreview.R;
 
 
 public class BezierBannerView extends View implements ViewPager.OnPageChangeListener {
@@ -125,7 +125,7 @@ public class BezierBannerView extends View implements ViewPager.OnPageChangeList
     }
 
     private void initattrs(AttributeSet attrs) {
-        TypedArray typedArray=getContext().obtainStyledAttributes(attrs,R.styleable.BezierBannerView);
+        TypedArray typedArray=getContext().obtainStyledAttributes(attrs, R.styleable.BezierBannerView);
         mSelectedColor=typedArray.getColor(R.styleable.BezierBannerView_selectedColor,0xFFFFFFFF);
         mUnSelectedColor=typedArray.getColor(R.styleable.BezierBannerView_unSelectedColor,0xFFAAAAAA);
         mRadius=typedArray.getDimension(R.styleable.BezierBannerView_selectedRaduis,mRadius);
