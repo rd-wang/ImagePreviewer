@@ -130,8 +130,11 @@ public class SmoothImageView extends PhotoView {
     private int downX, downY;
     private boolean isMoved = false;
     private boolean isDownPhoto = false;
+    private boolean hasShow = false;
+    private long time;
     private int alpha = 0;
     private static final int MIN_TRANS_DEST = 5;
+    private static final long MIN_PRESS_DEST = 1000;
     private static final float MAX_TRANS_SCALE = 0.5f;
 
     @Override
@@ -140,6 +143,7 @@ public class SmoothImageView extends PhotoView {
             int action = event.getAction();
             switch (action) {
                 case MotionEvent.ACTION_DOWN:
+                    time = System.currentTimeMillis();
                     downX = (int) event.getX();
                     downY = (int) event.getY();
                     if (markTransform == null) {
@@ -168,12 +172,24 @@ public class SmoothImageView extends PhotoView {
                     int offsetX = mx - downX;
                     int offsetY = my - downY;
 
+                    //自定义长按事件 ，使用系统的长按时间在拖拽时候也会触发。暂时简单解决。
+                    if (!isMoved && !hasShow) {
+                        if (System.currentTimeMillis() - time > MIN_PRESS_DEST) {
+                            time = System.currentTimeMillis();
+                            hasShow = true;
+                            if (longClickListener != null) {
+                                longClickListener.onLongClick(this);
+                            }
+                            return true;
+                        }
+                    }
+
                     // 水平方向移动不予处理
                     boolean s = !isMoved && (Math.abs(offsetX) > Math.abs(offsetY) || Math.abs(offsetY) < MIN_TRANS_DEST);
                     if (s) {
                         return super.dispatchTouchEvent(event);
                     } else {
-                        if (isDrag){
+                        if (isDrag) {
                             return super.dispatchTouchEvent(event);
                         }
                         // 一指滑动时，才对图片进行移动缩放处理
@@ -203,6 +219,7 @@ public class SmoothImageView extends PhotoView {
                     }
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
+                    hasShow = false;
                     if (isMoved) {
                         if (moveScale() <= MAX_TRANS_SCALE) {
                             moveToOldPosition();
@@ -221,6 +238,12 @@ public class SmoothImageView extends PhotoView {
             }
         }
         return super.dispatchTouchEvent(event);
+    }
+
+    private OnLongClickListener longClickListener;
+
+    public void setLongClickListener(OnLongClickListener l) {
+        longClickListener = l;
     }
 
     /**
